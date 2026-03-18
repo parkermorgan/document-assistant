@@ -75,51 +75,11 @@ tools = [
     }
 ]
 
-@app.delete("/clear")
-def clear_collection():
-    chroma_client.delete_collection("documents")
-    globals()["collection"] = chroma_client.get_or_create_collection(name="documents")
-    return {"status": "collection cleared"}
 
 # GET requests
 @app.get("/")
 def health_check():
     return {"status": "ok"}
-
-@app.get("/test-embedding")
-def test_embedding():
-    response = client.embeddings.create(
-        model="text-embedding-3-small",
-        input="Python developer with AI experience"
-    )
-    vector = response.data[0].embedding
-    return {
-        "text": "Python developer with AI experience",
-        "vector_length": len(vector),
-        "first_5_numbers": vector[:5]
-    }
-
-@app.get("/test-similarity")
-def test_similarity():
-    texts = [
-        "Python developer with AI experience",
-        "software engineer who codes in Python",
-        "I enjoy cooking pasta"
-    ]
-    response = client.embeddings.create(
-        model="text-embedding-3-small",
-        input=texts
-    )
-    vectors = [item.embedding for item in response.data]
-
-    def similarity(a, b):
-        return sum(x * y for x, y in zip(a, b))
-
-    return {
-        "python_dev_vs_software_engineer": similarity(vectors[0], vectors[1]),
-        "python_dev_vs_cooking_pasta": similarity(vectors[0], vectors[2])
-    }
-
 
 # Tool functions
 def run_read_document(file_path: str) -> str:
